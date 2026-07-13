@@ -1,330 +1,81 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Medullart</title>
-    <!-- Motor 3D autónomo (Three.js) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            cursor: default; /* Mantiene el cursor de la pantalla siempre visible */
-        }
+<!doctype html>
+<html lang="en">
+  <head>
+    <script type="module">import { injectIntoGlobalHook } from "/@react-refresh";
+injectIntoGlobalHook(window);
+window.$RefreshReg$ = () => {};
+window.$RefreshSig$ = () => (type) => type;</script>
 
-        body {
-            background-color: #000000;
-            color: #ffffff;
-            overflow-x: hidden;
-            height: 100vh;
-        }
+    <script type="module" src="/@vite/client"></script>
 
-        /* Menú superior flotante */
-        header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            padding: 30px 50px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 10;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
-        }
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.18/dist/index.global.min.js" integrity="sha384-WrpyCFNrMmN/IC7KmMNiXxIouXEFpoDIuJ2P+ys++uYEzegAW2MSl+X6Unsahaij" crossorigin="anonymous"></script>
+    <style type="text/tailwindcss">/**
+ * ⚠️ THEME CONFIGURATION — Tailwind v4
+ * MEDULLART Sensorial System Theme
+ */
+@theme {
+	/* Colors - Dark Biotechnical */
+	--color-void: #000000;
+	--color-pure: #ffffff;
+	--color-tech-gray: #444444;
+	--color-tech-dim: #222222;
+	--color-alert: #ff3333;
+	--color-calm: #33ffcc;
+	--color-energy: #ffcc33;
 
-        .logo {
-            font-size: 20px;
-            font-weight: 300;
-            letter-spacing: 4px;
-            text-transform: uppercase;
-        }
+	--color-primary: #ffffff;
+	--color-primary-foreground: #000000;
 
-        nav a {
-            color: #ffffff;
-            text-decoration: none;
-            font-size: 13px;
-            letter-spacing: 2px;
-            margin-left: 30px;
-            text-transform: uppercase;
-            opacity: 0.6;
-            transition: opacity 0.3s;
-        }
+	--color-secondary: #444444;
+	--color-secondary-foreground: #ffffff;
 
-        nav a:hover {
-            opacity: 1;
-        }
+	--color-destructive: #ff3333;
+	--color-destructive-foreground: #000000;
 
-        /* Contenedor principal de la experiencia 3D */
-        #canvas-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 1;
-        }
+	--color-muted: #222222;
+	--color-muted-foreground: #666666;
 
-        /* Botón de Audio */
-        .audio-panel {
-            position: fixed;
-            bottom: 50px;
-            left: 50px;
-            z-index: 10;
-            background: rgba(10, 10, 10, 0.5);
-            padding: 20px;
-            border-radius: 4px;
-            border: 1px solid #1a1a1a;
-            backdrop-filter: blur(10px);
-        }
+	--color-accent: #33ffcc;
+	--color-accent-foreground: #000000;
 
-        .audio-panel p {
-            font-size: 11px;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            margin-bottom: 10px;
-            opacity: 0.5;
-        }
+	--color-border: #333333;
+	--color-input: #222222;
+	--color-ring: #ffffff;
 
-        .upload-btn {
-            display: inline-block;
-            padding: 10px 20px;
-            border: 1px solid #ffffff;
-            background: transparent;
-            color: #ffffff;
-            font-size: 12px;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
+	/* Typography */
+	--font-mono: 'JetBrains Mono', monospace;
+	--font-sans: 'Space Grotesk', system-ui, sans-serif;
 
-        .upload-btn:hover {
-            background: #ffffff;
-            color: #000000;
-        }
+	/* Radius */
+	--radius-sm: 0;
+	--radius-md: 0;
+	--radius-lg: 0;
+	--radius-xl: 0;
+}
+</style>
 
-        input[type="file"] {
-            display: none;
-        }
+    <script type="module" src="/index.html?html-proxy&index=0.js"></script>
 
-        /* Panel de Información */
-        .info-panel {
-            position: fixed;
-            bottom: 50px;
-            right: 50px;
-            z-index: 10;
-            max-width: 300px;
-            text-align: right;
-        }
-
-        .info-panel h1 {
-            font-size: 32px;
-            font-weight: 200;
-            letter-spacing: 6px;
-            margin-bottom: 15px;
-        }
-
-        .info-panel p {
-            font-size: 12px;
-            line-height: 1.6;
-            opacity: 0.5;
-            font-weight: 300;
-        }
-    </style>
-</head>
-<body>
-
-    <header>
-        <div class="logo">Medullart</div>
-        <nav>
-            <a href="#works">Works</a>
-            <a href="#concept">Concept</a>
-            <a href="#contact">Contact</a>
-        </nav>
-    </header>
-
-    <div id="canvas-container"></div>
-
-    <div class="audio-panel">
-        <p>Sistemas Nerviosos Colectivos</p>
-        <label class="upload-btn">
-            Upload Audio
-            <input type="file" id="audio-input" accept="audio/*">
-        </label>
-    </div>
-
-    <div class="info-panel">
-        <h1>MEDULLART</h1>
-        <p>Materialización de entidades virtuales y cápsulas emocionales a través de la síntesis digital rítmica.</p>
-    </div>
-
-    <script>
-        // Configuración de escena 3D autónoma
-        const container = document.getElementById('canvas-container');
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        container.appendChild(renderer.domElement);
-
-        camera.position.z = 5;
-
-        // Iluminación Tenue Realista
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.1);
-        scene.add(ambientLight);
-
-        const pointLight = new THREE.PointLight(0xffffff, 0, 10);
-        pointLight.position.set(0, 0, 2);
-        scene.add(pointLight);
-
-        // Inicialización del filamento vertical
-        const points = [];
-        for (let i = 0; i < 100; i++) {
-            points.push(new THREE.Vector3(0, (i / 100) * 4 - 2, 0));
-        }
-
-        const baseGeometry = new THREE.BufferGeometry().setFromPoints(points);
-        let isThick = false;
-        const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.7 });
-        let filament = new THREE.Line(baseGeometry, lineMaterial);
-        scene.add(filament);
-
-        // Geometría para el filamento engrosado 3D
-        const curve = new THREE.CatmullRomCurve3(points);
-        const tubeGeometry = new THREE.TubeGeometry(curve, 64, 0.01, 8, false);
-        const tubeMaterial = new THREE.MeshPhysicalMaterial({
-            color: 0xffffff,
-            roughness: 0.2,
-            metalness: 0.1,
-            transparent: true,
-            opacity: 0.9,
-            clearcoat: 1.0
-        });
-        const thickFilament = new THREE.Mesh(tubeGeometry, tubeMaterial);
-
-        // Controladores de ratón y audio
-        const mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
-        let audioContext, analyser, dataArray;
-        let isAudioPlaying = false;
-
-        window.addEventListener('mousemove', (e) => {
-            mouse.targetX = (e.clientX / window.innerWidth) * 2 - 1;
-            mouse.targetY = -(e.clientY / window.innerHeight) * 2 + 1;
-        });
-
-        // Evento Click: Engrosa a estructura 3D con luz suave
-        window.addEventListener('click', (e) => {
-            if(e.target.tagName === 'INPUT' || e.target.classList.contains('upload-btn')) return;
-
-            isThick = !isThick;
-            if(isThick) {
-                scene.remove(filament);
-                scene.add(thickFilament);
-                pointLight.intensity = 1.5;
-            } else {
-                scene.remove(thickFilament);
-                scene.add(filament);
-                pointLight.intensity = 0;
-            }
-        });
-
-        // Subida y procesamiento rítmico de audio
-        const audioInput = document.getElementById('audio-input');
-        audioInput.addEventListener('change', function() {
-            const files = this.files;
-            if (files.length === 0) return;
-
-            const audio = new Audio();
-            audio.src = URL.createObjectURL(files[0]);
-            audio.load();
-            audio.play();
-
-            audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const src = audioContext.createMediaElementSource(audio);
-            analyser = audioContext.createAnalyser();
-            src.connect(analyser);
-            analyser.connect(audioContext.destination);
-            analyser.fftSize = 128;
-
-            const bufferLength = analyser.frequencyBinCount;
-            dataArray = new Uint8Array(bufferLength);
-            isAudioPlaying = true;
-        });
-
-        const clock = new THREE.Clock();
-
-        // Ciclo de animación infinito
-        function animate() {
-            requestAnimationFrame(animate);
-
-            const elapsedTime = clock.getElapsedTime();
-
-            mouse.x += (mouse.targetX - mouse.x) * 0.05;
-            mouse.y += (mouse.targetY - mouse.y) * 0.05;
-
-            let audioIntensity = 0;
-            if (isAudioPlaying && analyser) {
-                analyser.getByteFrequencyData(dataArray);
-                let sum = 0;
-                for(let i = 0; i < dataArray.length; i++) {
-                    sum += dataArray[i];
-                }
-                audioIntensity = sum / dataArray.length / 255;
-            }
-
-            const positionAttribute = isThick ? tubeGeometry.attributes.position : baseGeometry.attributes.position;
-            
-            for (let i = 0; i < positionAttribute.count; i++) {
-                const vertex = new THREE.Vector3();
-                vertex.fromBufferAttribute(positionAttribute, i);
-
-                const dist = vertex.distanceTo(new THREE.Vector3(mouse.x * 2, mouse.y * 2, 0));
-
-                // Reactividad suave al cursor visible
-                if (dist < 1.5) {
-                    const wave = Math.sin(vertex.y * 5 + elapsedTime * 10) * 0.08 * (1.5 - dist);
-                    vertex.x += wave;
-                }
-
-                // Morfeado abstracto rítmico por frecuencias de audio
-                if (audioIntensity > 0) {
-                    const noise = Math.sin(vertex.y * 10 + elapsedTime * 15) * audioIntensity * 0.3;
-                    vertex.x += noise;
-                    vertex.z += Math.cos(vertex.y * 10 + elapsedTime * 15) * audioIntensity * 0.3;
-                    
-                    if(isThick) {
-                        thickFilament.material.color.setHSL(0.5 + audioIntensity * 0.5, 0.8, 0.5);
-                    }
-                } else if (isThick) {
-                    thickFilament.material.color.setRGB(1, 1, 1);
-                }
-
-                positionAttribute.setXYZ(i, vertex.x, vertex.y, vertex.z);
-            }
-            positionAttribute.needsUpdate = true;
-
-            if(isThick) {
-                thickFilament.rotation.y = elapsedTime * 0.1;
-            } else {
-                filament.rotation.y = elapsedTime * 0.1;
-            }
-
-            renderer.render(scene, camera);
-        }
-
-        animate();
-
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-    </script>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MEDULLART — Sensorial Filament System</title>
+    <meta name="description" content="Interactive synesthetic translation of abstract data into real-time visual morphology" />
+    <meta property="og:title" content="MEDULLART — Sensorial Filament System" />
+    <meta property="og:description" content="Interactive synesthetic translation of abstract data into real-time visual morphology" />
+    <meta property="og:image" content="/og-image.jpeg" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="MEDULLART — Sensorial Filament System" />
+    <meta name="twitter:description" content="Interactive synesthetic translation of abstract data into real-time visual morphology" />
+    <meta name="twitter:image" content="/og-image.jpeg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"dd0284a0c2cd4bbdb53b749436cefafa","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 </body>
 </html>
