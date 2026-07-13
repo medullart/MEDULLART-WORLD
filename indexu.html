@@ -82,68 +82,58 @@
     <script>
         const container = document.getElementById('canvas-container');
         const scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(0x020204, 0.04);
+        scene.fog = new THREE.FogExp2(0x020204, 0.05);
 
-        const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(0, 0, 18);
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 0, 15);
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         container.appendChild(renderer.domElement);
 
-        // Inicializar el soporte para reflejos realistas de luces en materiales curvos
-        RectAreaLightUniformsLib.init();
-
-        // --- LUCES DE ESTUDIO TIPO CINEMA 4D ---
-        scene.add(new THREE.AmbientLight(0x0a0a12));
+        // --- LUCES DIRECCIONALES DE ALTA INTENSIDAD ---
+        scene.add(new THREE.AmbientLight(0x111119));
         
-        const lightMain = new THREE.PointLight(0xffffff, 5, 40);
-        lightMain.position.set(10, 10, 10);
+        const lightMain = new THREE.PointLight(0xffffff, 3, 50);
+        lightMain.position.set(5, 5, 5);
         scene.add(lightMain);
 
-        const lightNeonCyan = new THREE.DirectionalLight(0x00f0ff, 4.0);
-        lightNeonCyan.position.set(-10, 4, -2);
-        scene.add(lightNeonCyan);
+        const lightCyan = new THREE.DirectionalLight(0x00f0ff, 4.0);
+        lightCyan.position.set(-10, 5, 2);
+        scene.add(lightCyan);
 
-        const lightNeonPink = new THREE.DirectionalLight(0xff00bb, 3.0);
-        lightNeonPink.position.set(10, -4, -2);
-        scene.add(lightNeonPink);
+        const lightPink = new THREE.DirectionalLight(0xff00bb, 3.0);
+        lightPink.position.set(10, -5, 2);
+        scene.add(lightPink);
 
-        // --- ENTORNO REFLECTIVO ARTIFICIAL ---
-        // Al no tener una imagen HDRI de fondo, creamos un cubo invisible de luz para generar reflejos en el plástico
-        const reflectionGeometry = new THREE.BoxGeometry(30, 30, 30);
-        const reflectionMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.BackSide, wireframe: true, opacity: 0.05, transparent: true });
-        const reflectionCube = new THREE.Mesh(reflectionGeometry, reflectionMaterial);
-        scene.add(reflectionCube);
-
-        // --- GEOMETRÍA ABSTRACTA DE PLÁSTICO DANEL ---
+        // --- GEOMETRÍA ABSTRACTA EN PLÁSTICO DANEL (CON BRILLO INTEGRADO) ---
         const meshGroup = new THREE.Group();
         
-        const matPlasticDanel = new THREE.MeshStandardMaterial({ 
-            color: 0x06060c, 
-            roughness: 0.05,     // Acabado pulido espejo
-            metalness: 0.1,      // Plástico puro no metálico
-            clearcoat: 1.0,      // Capa de laca brillante superior
-            clearcoatRoughness: 0.01
+        // Usamos Phong para forzar el brillo plástico reluciente sin depender de imágenes HDRI
+        const matPlasticDanel = new THREE.MeshPhongMaterial({ 
+            color: 0x05050a, 
+            specular: 0xffffff,    // Color del brillo de la laca
+            shininess: 120,        // Intensidad del reflejo pulido tipo Cinema 4D
+            flatShading: false     // Fuerza el suavizado perfecto de los polígonos
         });
 
-        // Nudo Toroidal denso para forzar reflejos abstractos complejos
-        const baseGeo = new THREE.TorusKnotGeometry(3.5, 1.1, 160, 16, 3, 5);
+        // Nudo Toroidal denso para romper la forma de esfera
+        const baseGeo = new THREE.TorusKnotGeometry(2.8, 0.8, 180, 16, 3, 4);
         const posBackup = baseGeo.attributes.position.clone();
         
         const abstractMesh = new THREE.Mesh(baseGeo, matPlasticDanel);
         meshGroup.add(abstractMesh);
         scene.add(meshGroup);
 
-        // --- FILAMENTOS ENREDADOS ---
-        const cablesCount = 45;
+        // --- FILAMENTOS ENREDADOS REACIVOS ---
+        const cablesCount = 50;
         const cablesData = [];
         const cablesGroup = new THREE.Group();
         const matCable = new THREE.LineBasicMaterial({ color: 0x00f0ff, transparent: true, opacity: 0.8 });
 
         for (let i = 0; i < cablesCount; i++) {
-            const pointsCount = 70;
+            const pointsCount = 60;
             const points = Array.from({length: pointsCount}, () => new THREE.Vector3());
             const geo = new THREE.BufferGeometry().setFromPoints(points);
             const line = new THREE.Line(geo, matCable.clone());
@@ -153,7 +143,7 @@
             cablesGroup.add(line);
             cablesData.push({
                 line: line, pointsCount: pointsCount,
-                speed: 0.5 + Math.random() * 0.7,
+                speed: 0.6 + Math.random() * 0.8,
                 theta: Math.random() * Math.PI * 2,
                 phi: Math.acos((Math.random() * 2) - 1),
                 seed: Math.random() * 100
@@ -161,7 +151,7 @@
         }
         scene.add(cablesGroup);
 
-        // --- AUDIO ---
+        // --- AUDIO ANALYZER ---
         let analyser, dataArray, audioVol = 0;
         const btn = document.querySelector('.btn');
         const input = document.createElement('input');
@@ -177,17 +167,17 @@
             src.connect(analyser); analyser.connect(ctx.destination);
             analyser.fftSize = 256;
             dataArray = new Uint8Array(analyser.frequencyBinCount);
-            btn.innerText = "DANEL RENDERING";
+            btn.innerText = "SHADER ACTIVE";
         });
 
-        // --- MOUSE ---
+        // --- INTERACTIVIDAD RATÓN ---
         let mouseX = 0, mouseY = 0, targetX = 0, targetY = 0;
         window.addEventListener('mousemove', (e) => {
             targetX = (e.clientX - window.innerWidth / 2) * 0.0015;
             targetY = (e.clientY - window.innerHeight / 2) * 0.0015;
         });
 
-        // --- ANIMACIÓN ---
+        // --- BUCLE DE ANIMACIÓN ---
         const clock = new THREE.Clock();
         function animate() {
             requestAnimationFrame(animate);
@@ -201,32 +191,32 @@
 
             mouseX += (targetX - mouseX) * 0.05;
             mouseY += (targetY - mouseY) * 0.05;
-            meshGroup.rotation.y = cablesGroup.rotation.y = mouseX + time * 0.08;
+            meshGroup.rotation.y = cablesGroup.rotation.y = mouseX + time * 0.1;
             meshGroup.rotation.x = cablesGroup.rotation.x = mouseY;
 
-            // Deformación geométrica interactiva
+            // Deformación de la malla orgánica
             const pos = abstractMesh.geometry.attributes.position;
             for (let i = 0; i < pos.count; i++) {
                 let x = posBackup.getX(i);
                 let y = posBackup.getY(i);
                 let z = posBackup.getZ(i);
 
-                let wave = Math.sin(x * 0.4 + time * 2.5) * (0.2 + audioVol);
+                let wave = Math.sin(x * 0.5 + time * 3) * (0.25 + audioVol);
                 pos.setXYZ(i, x + wave, y + wave, z + wave);
             }
             pos.needsUpdate = true;
             abstractMesh.geometry.computeVertexNormals();
 
-            // Animación de los cables
+            // Animación de filamentos enredados
             cablesData.forEach((c) => {
                 const cPos = c.line.geometry.attributes.position;
                 for (let i = 0; i < c.pointsCount; i++) {
                     const ratio = i / c.pointsCount;
-                    const offset = Math.sin(ratio * 8 + time * c.speed + c.seed) * (0.4 + audioVol);
-                    const r = 4.2 + offset;
+                    const offset = Math.sin(ratio * 6 + time * c.speed + c.seed) * (0.35 + audioVol);
+                    const r = 3.4 + offset;
                     
                     const x = r * Math.sin(c.phi) * Math.cos(c.theta + (ratio * 4));
-                    const y = (ratio - 0.5) * 10 + Math.sin(time + c.seed) * 0.3;
+                    const y = (ratio - 0.5) * 8 + Math.sin(time + c.seed) * 0.2;
                     const z = r * Math.cos(c.phi);
                     cPos.setXYZ(i, x, y, z);
                 }
@@ -242,5 +232,3 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
     </script>
-</body>
-</html>
