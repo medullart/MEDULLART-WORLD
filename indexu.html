@@ -1,234 +1,81 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MEDULLART</title>
-    <!-- Cargamos las dos librerías necesarias para el renderizado avanzado -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/lights/RectAreaLightUniformsLib.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body, html {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background-color: #020204;
-            font-family: sans-serif;
-            color: #fff;
-        }
-        #canvas-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-        }
-        .interface {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 2;
-            pointer-events: none;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 20px;
-        }
-        .header {
-            font-size: 12px;
-            letter-spacing: 2px;
-        }
-        .footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            width: 100%;
-        }
-        .btn {
-            background: transparent;
-            border: 1px solid #ffffff33;
-            color: #fff;
-            padding: 8px 16px;
-            font-size: 10px;
-            cursor: pointer;
-            pointer-events: auto;
-        }
-    </style>
-</head>
-<body>
+<!doctype html>
+<html lang="en">
+  <head>
+    <script type="module">import { injectIntoGlobalHook } from "/@react-refresh";
+injectIntoGlobalHook(window);
+window.$RefreshReg$ = () => {};
+window.$RefreshSig$ = () => (type) => type;</script>
 
-    <div id="canvas-container"></div>
+    <script type="module" src="/@vite/client"></script>
 
-    <div class="interface">
-        <div class="header">MEDULLART</div>
-        
-        <div class="footer">
-            <button class="btn">UPLOAD AUDIO</button>
-            <div style="font-size: 10px; text-align: right; opacity: 0.5;">
-                SYSTEM: XTNT_REALITY<br>
-                STATUS: ACTIVE
-            </div>
-        </div>
-    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.18/dist/index.global.min.js" integrity="sha384-WrpyCFNrMmN/IC7KmMNiXxIouXEFpoDIuJ2P+ys++uYEzegAW2MSl+X6Unsahaij" crossorigin="anonymous"></script>
+    <style type="text/tailwindcss">/**
+ * ⚠️ THEME CONFIGURATION — Tailwind v4
+ * MEDULLART Sensorial System Theme
+ */
+@theme {
+	/* Colors - Dark Biotechnical */
+	--color-void: #000000;
+	--color-pure: #ffffff;
+	--color-tech-gray: #444444;
+	--color-tech-dim: #222222;
+	--color-alert: #ff3333;
+	--color-calm: #33ffcc;
+	--color-energy: #ffcc33;
 
-    <script>
-        const container = document.getElementById('canvas-container');
-        const scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(0x020204, 0.05);
+	--color-primary: #ffffff;
+	--color-primary-foreground: #000000;
 
-        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(0, 0, 15);
+	--color-secondary: #444444;
+	--color-secondary-foreground: #ffffff;
 
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        container.appendChild(renderer.domElement);
+	--color-destructive: #ff3333;
+	--color-destructive-foreground: #000000;
 
-        // --- LUCES DIRECCIONALES DE ALTA INTENSIDAD ---
-        scene.add(new THREE.AmbientLight(0x111119));
-        
-        const lightMain = new THREE.PointLight(0xffffff, 3, 50);
-        lightMain.position.set(5, 5, 5);
-        scene.add(lightMain);
+	--color-muted: #222222;
+	--color-muted-foreground: #666666;
 
-        const lightCyan = new THREE.DirectionalLight(0x00f0ff, 4.0);
-        lightCyan.position.set(-10, 5, 2);
-        scene.add(lightCyan);
+	--color-accent: #33ffcc;
+	--color-accent-foreground: #000000;
 
-        const lightPink = new THREE.DirectionalLight(0xff00bb, 3.0);
-        lightPink.position.set(10, -5, 2);
-        scene.add(lightPink);
+	--color-border: #333333;
+	--color-input: #222222;
+	--color-ring: #ffffff;
 
-        // --- GEOMETRÍA ABSTRACTA EN PLÁSTICO DANEL (CON BRILLO INTEGRADO) ---
-        const meshGroup = new THREE.Group();
-        
-        // Usamos Phong para forzar el brillo plástico reluciente sin depender de imágenes HDRI
-        const matPlasticDanel = new THREE.MeshPhongMaterial({ 
-            color: 0x05050a, 
-            specular: 0xffffff,    // Color del brillo de la laca
-            shininess: 120,        // Intensidad del reflejo pulido tipo Cinema 4D
-            flatShading: false     // Fuerza el suavizado perfecto de los polígonos
-        });
+	/* Typography */
+	--font-mono: 'JetBrains Mono', monospace;
+	--font-sans: 'Space Grotesk', system-ui, sans-serif;
 
-        // Nudo Toroidal denso para romper la forma de esfera
-        const baseGeo = new THREE.TorusKnotGeometry(2.8, 0.8, 180, 16, 3, 4);
-        const posBackup = baseGeo.attributes.position.clone();
-        
-        const abstractMesh = new THREE.Mesh(baseGeo, matPlasticDanel);
-        meshGroup.add(abstractMesh);
-        scene.add(meshGroup);
+	/* Radius */
+	--radius-sm: 0;
+	--radius-md: 0;
+	--radius-lg: 0;
+	--radius-xl: 0;
+}
+</style>
 
-        // --- FILAMENTOS ENREDADOS REACIVOS ---
-        const cablesCount = 50;
-        const cablesData = [];
-        const cablesGroup = new THREE.Group();
-        const matCable = new THREE.LineBasicMaterial({ color: 0x00f0ff, transparent: true, opacity: 0.8 });
+    <script type="module" src="/index.html?html-proxy&index=0.js"></script>
 
-        for (let i = 0; i < cablesCount; i++) {
-            const pointsCount = 60;
-            const points = Array.from({length: pointsCount}, () => new THREE.Vector3());
-            const geo = new THREE.BufferGeometry().setFromPoints(points);
-            const line = new THREE.Line(geo, matCable.clone());
-            
-            if(Math.random() > 0.5) line.material.color.setHex(0xff00bb);
-            
-            cablesGroup.add(line);
-            cablesData.push({
-                line: line, pointsCount: pointsCount,
-                speed: 0.6 + Math.random() * 0.8,
-                theta: Math.random() * Math.PI * 2,
-                phi: Math.acos((Math.random() * 2) - 1),
-                seed: Math.random() * 100
-            });
-        }
-        scene.add(cablesGroup);
-
-        // --- AUDIO ANALYZER ---
-        let analyser, dataArray, audioVol = 0;
-        const btn = document.querySelector('.btn');
-        const input = document.createElement('input');
-        input.type = 'file'; input.accept = 'audio/*';
-        btn.addEventListener('click', () => input.click());
-        input.addEventListener('change', function() {
-            if (!this.files[0]) return;
-            const audio = new Audio(URL.createObjectURL(this.files[0]));
-            audio.loop = true; audio.play();
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            const src = ctx.createMediaElementSource(audio);
-            analyser = ctx.createAnalyser();
-            src.connect(analyser); analyser.connect(ctx.destination);
-            analyser.fftSize = 256;
-            dataArray = new Uint8Array(analyser.frequencyBinCount);
-            btn.innerText = "SHADER ACTIVE";
-        });
-
-        // --- INTERACTIVIDAD RATÓN ---
-        let mouseX = 0, mouseY = 0, targetX = 0, targetY = 0;
-        window.addEventListener('mousemove', (e) => {
-            targetX = (e.clientX - window.innerWidth / 2) * 0.0015;
-            targetY = (e.clientY - window.innerHeight / 2) * 0.0015;
-        });
-
-        // --- BUCLE DE ANIMACIÓN ---
-        const clock = new THREE.Clock();
-        function animate() {
-            requestAnimationFrame(animate);
-            const time = clock.getElapsedTime();
-
-            if (analyser) {
-                analyser.getByteFrequencyData(dataArray);
-                let sum = dataArray.reduce((a, b) => a + b, 0);
-                audioVol = (sum / dataArray.length) * 0.25;
-            }
-
-            mouseX += (targetX - mouseX) * 0.05;
-            mouseY += (targetY - mouseY) * 0.05;
-            meshGroup.rotation.y = cablesGroup.rotation.y = mouseX + time * 0.1;
-            meshGroup.rotation.x = cablesGroup.rotation.x = mouseY;
-
-            // Deformación de la malla orgánica
-            const pos = abstractMesh.geometry.attributes.position;
-            for (let i = 0; i < pos.count; i++) {
-                let x = posBackup.getX(i);
-                let y = posBackup.getY(i);
-                let z = posBackup.getZ(i);
-
-                let wave = Math.sin(x * 0.5 + time * 3) * (0.25 + audioVol);
-                pos.setXYZ(i, x + wave, y + wave, z + wave);
-            }
-            pos.needsUpdate = true;
-            abstractMesh.geometry.computeVertexNormals();
-
-            // Animación de filamentos enredados
-            cablesData.forEach((c) => {
-                const cPos = c.line.geometry.attributes.position;
-                for (let i = 0; i < c.pointsCount; i++) {
-                    const ratio = i / c.pointsCount;
-                    const offset = Math.sin(ratio * 6 + time * c.speed + c.seed) * (0.35 + audioVol);
-                    const r = 3.4 + offset;
-                    
-                    const x = r * Math.sin(c.phi) * Math.cos(c.theta + (ratio * 4));
-                    const y = (ratio - 0.5) * 8 + Math.sin(time + c.seed) * 0.2;
-                    const z = r * Math.cos(c.phi);
-                    cPos.setXYZ(i, x, y, z);
-                }
-                cPos.needsUpdate = true;
-            });
-
-            renderer.render(scene, camera);
-        }
-        animate();
-
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-    </script>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MEDULLART — Sensorial Filament System</title>
+    <meta name="description" content="Interactive synesthetic translation of abstract data into real-time visual morphology" />
+    <meta property="og:title" content="MEDULLART — Sensorial Filament System" />
+    <meta property="og:description" content="Interactive synesthetic translation of abstract data into real-time visual morphology" />
+    <meta property="og:image" content="/og-image.jpeg" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="MEDULLART — Sensorial Filament System" />
+    <meta name="twitter:description" content="Interactive synesthetic translation of abstract data into real-time visual morphology" />
+    <meta name="twitter:image" content="/og-image.jpeg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx?t=1783908788188"></script>
+  <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"dd0284a0c2cd4bbdb53b749436cefafa","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a1a5130f7b839925',t:'MTc4MzkxMjAxNQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
