@@ -1,81 +1,335 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <script type="module">import { injectIntoGlobalHook } from "/@react-refresh";
-injectIntoGlobalHook(window);
-window.$RefreshReg$ = () => {};
-window.$RefreshSig$ = () => (type) => type;</script>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medullart</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
 
-    <script type="module" src="/@vite/client"></script>
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            overflow: hidden;
+            height: 100vh;
+            position: relative;
+        }
 
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.18/dist/index.global.min.js" integrity="sha384-WrpyCFNrMmN/IC7KmMNiXxIouXEFpoDIuJ2P+ys++uYEzegAW2MSl+X6Unsahaij" crossorigin="anonymous"></script>
-    <style type="text/tailwindcss">/**
- * ⚠️ THEME CONFIGURATION — Tailwind v4
- * MEDULLART Sensorial System Theme
- */
-@theme {
-	/* Colors - Dark Biotechnical */
-	--color-void: #000000;
-	--color-pure: #ffffff;
-	--color-tech-gray: #444444;
-	--color-tech-dim: #222222;
-	--color-alert: #ff3333;
-	--color-calm: #33ffcc;
-	--color-energy: #ffcc33;
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 30px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+            pointer-events: none;
+        }
 
-	--color-primary: #ffffff;
-	--color-primary-foreground: #000000;
+        .logo, nav a {
+            pointer-events: auto;
+        }
 
-	--color-secondary: #444444;
-	--color-secondary-foreground: #ffffff;
+        .logo {
+            font-size: 20px;
+            font-weight: 300;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+        }
 
-	--color-destructive: #ff3333;
-	--color-destructive-foreground: #000000;
+        nav a {
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 13px;
+            letter-spacing: 2px;
+            margin-left: 30px;
+            text-transform: uppercase;
+            opacity: 0.6;
+        }
 
-	--color-muted: #222222;
-	--color-muted-foreground: #666666;
+        #canvas-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
 
-	--color-accent: #33ffcc;
-	--color-accent-foreground: #000000;
+        .audio-panel {
+            position: fixed;
+            bottom: 50px;
+            left: 50px;
+            z-index: 10;
+            background: rgba(10, 10, 10, 0.6);
+            padding: 20px;
+            border-radius: 4px;
+            border: 1px solid #1a1a1a;
+            backdrop-filter: blur(10px);
+        }
 
-	--color-border: #333333;
-	--color-input: #222222;
-	--color-ring: #ffffff;
+        .audio-panel p {
+            font-size: 11px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            opacity: 0.5;
+        }
 
-	/* Typography */
-	--font-mono: 'JetBrains Mono', monospace;
-	--font-sans: 'Space Grotesk', system-ui, sans-serif;
+        .upload-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            border: 1px solid #ffffff;
+            background: transparent;
+            color: #ffffff;
+            font-size: 12px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
 
-	/* Radius */
-	--radius-sm: 0;
-	--radius-md: 0;
-	--radius-lg: 0;
-	--radius-xl: 0;
-}
-</style>
+        input[type="file"] {
+            display: none;
+        }
 
-    <script type="module" src="/index.html?html-proxy&index=0.js"></script>
+        .info-panel {
+            position: fixed;
+            bottom: 50px;
+            right: 50px;
+            z-index: 10;
+            max-width: 300px;
+            text-align: right;
+            pointer-events: none;
+        }
 
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MEDULLART — Sensorial Filament System</title>
-    <meta name="description" content="Interactive synesthetic translation of abstract data into real-time visual morphology" />
-    <meta property="og:title" content="MEDULLART — Sensorial Filament System" />
-    <meta property="og:description" content="Interactive synesthetic translation of abstract data into real-time visual morphology" />
-    <meta property="og:image" content="/og-image.jpeg" />
-    <meta property="og:type" content="website" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="MEDULLART — Sensorial Filament System" />
-    <meta name="twitter:description" content="Interactive synesthetic translation of abstract data into real-time visual morphology" />
-    <meta name="twitter:image" content="/og-image.jpeg" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500&display=swap" rel="stylesheet">
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx?t=1783908788188"></script>
-  <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"dd0284a0c2cd4bbdb53b749436cefafa","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a1a5130f7b839925',t:'MTc4MzkxMjAxNQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+        .info-panel h1 {
+            font-size: 32px;
+            font-weight: 200;
+            letter-spacing: 6px;
+            margin-bottom: 15px;
+        }
+
+        .info-panel p {
+            font-size: 12px;
+            line-height: 1.6;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">Medullart</div>
+        <nav>
+            <a href="#works">Works</a>
+            <a href="#concept">Concept</a>
+            <a href="#contact">Contact</a>
+        </nav>
+    </header>
+
+    <div id="canvas-container"></div>
+
+    <div class="audio-panel">
+        <p>Sistemas Nerviosos Colectivos</p>
+        <label class="upload-btn">
+            Upload Audio
+            <input type="file" id="audio-input" accept="audio/*">
+        </label>
+    </div>
+
+    <div class="info-panel">
+        <h1>MEDULLART</h1>
+        <p>Materialización de entidades virtuales y cápsulas emocionales a través de la síntesis digital rítmica.</p>
+    </div>
+
+    <script>
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        container.appendChild(renderer.domElement);
+
+        camera.position.z = 5;
+
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.1);
+        scene.add(ambientLight);
+
+        const pointLight = new THREE.PointLight(0xffffff, 0, 10);
+        pointLight.position.set(0, 0, 2);
+        scene.add(pointLight);
+
+        const points = [];
+        for (let i = 0; i < 200; i++) {
+            points.push(new THREE.Vector3(0, (i / 200) * 4 - 2, 0));
+        }
+
+        const baseGeometry = new THREE.BufferGeometry().setFromPoints(points);
+        // Guardamos las posiciones originales para calcular las deformaciones
+        const originalPositions = points.map(p => p.clone());
+
+        let isThick = false;
+        const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.7 });
+        let filament = new THREE.Line(baseGeometry, lineMaterial);
+        scene.add(filament);
+
+        const curve = new THREE.CatmullRomCurve3(points);
+        const tubeGeometry = new THREE.TubeGeometry(curve, 128, 0.02, 12, false);
+        const tubeMaterial = new THREE.MeshPhysicalMaterial({
+            color: 0xffffff,
+            roughness: 0.1,
+            metalness: 0.1,
+            transparent: true,
+            opacity: 0.9,
+            clearcoat: 1.0
+        });
+        const thickFilament = new THREE.Mesh(tubeGeometry, tubeMaterial);
+        const originalTubePositions = tubeGeometry.attributes.position.clone();
+
+        const mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
+        let audioContext, analyser, dataArray;
+        let isAudioPlaying = false;
+
+        function updateCoordinates(clientX, clientY) {
+            mouse.targetX = (clientX / window.innerWidth) * 2 - 1;
+            mouse.targetY = -(clientY / window.innerHeight) * 2 + 1;
+        }
+
+        window.addEventListener('mousemove', (e) => updateCoordinates(e.clientX, e.clientY));
+        
+        window.addEventListener('touchmove', (e) => {
+            if(e.touches.length > 0) {
+                updateCoordinates(e.touches[0].clientX, e.touches[0].clientY);
+            }
+        }, { passive: true });
+
+        window.addEventListener('click', (e) => {
+            if(e.target.closest('.audio-panel') || e.target.closest('header')) return;
+
+            isThick = !isThick;
+            if(isThick) {
+                scene.remove(filament);
+                scene.add(thickFilament);
+                pointLight.intensity = 2.0;
+            } else {
+                scene.remove(thickFilament);
+                scene.add(filament);
+                pointLight.intensity = 0;
+            }
+        });
+
+        const audioInput = document.getElementById('audio-input');
+        audioInput.addEventListener('change', function() {
+            const files = this.files;
+            if (files.length === 0) return;
+
+            const audio = new Audio();
+            audio.src = URL.createObjectURL(files[0]);
+            audio.load();
+            audio.play();
+
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const src = audioContext.createMediaElementSource(audio);
+            analyser = audioContext.createAnalyser();
+            src.connect(analyser);
+            analyser.connect(audioContext.destination);
+            analyser.fftSize = 128;
+
+            const bufferLength = analyser.frequencyBinCount;
+            dataArray = new Uint8Array(bufferLength);
+            isAudioPlaying = true;
+        });
+
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const elapsedTime = clock.getElapsedTime();
+
+            mouse.x += (mouse.targetX - mouse.x) * 0.1;
+            mouse.y += (mouse.targetY - mouse.y) * 0.1;
+
+            let audioIntensity = 0;
+            if (isAudioPlaying && analyser) {
+                analyser.getByteFrequencyData(dataArray);
+                let sum = 0;
+                for(let i = 0; i < dataArray.length; i++) {
+                    sum += dataArray[i];
+                }
+                audioIntensity = sum / dataArray.length / 255;
+            }
+
+            if (!isThick) {
+                const positionAttribute = baseGeometry.attributes.position;
+                for (let i = 0; i < positionAttribute.count; i++) {
+                    const orig = originalPositions[i];
+                    let x = orig.x;
+                    let y = orig.y;
+                    let z = orig.z;
+
+                    const dist = Math.sqrt(Math.pow(x - mouse.x * 2, 2) + Math.pow(y - mouse.y * 2, 2));
+
+                    if (dist < 2.0) {
+                        x += Math.sin(y * 4 + elapsedTime * 8) * 0.15 * (2.0 - dist);
+                    }
+
+                    if (audioIntensity > 0) {
+                        x += Math.sin(y * 12 + elapsedTime * 20) * audioIntensity * 0.4;
+                        z += Math.cos(y * 12 + elapsedTime * 20) * audioIntensity * 0.4;
+                    }
+
+                    positionAttribute.setXYZ(i, x, y, z);
+                }
+                positionAttribute.needsUpdate = true;
+                filament.rotation.y = elapsedTime * 0.05;
+            } else {
+                const positionAttribute = tubeGeometry.attributes.position;
+                for (let i = 0; i < positionAttribute.count; i++) {
+                    let x = originalTubePositions.getX(i);
+                    let y = originalTubePositions.getY(i);
+                    let z = originalTubePositions.getZ(i);
+
+                    const dist = Math.sqrt(Math.pow(x - mouse.x * 2, 2) + Math.pow(y - mouse.y * 2, 2));
+
+                    if (dist < 2.0) {
+                        x += Math.sin(y * 4 + elapsedTime * 8) * 0.12 * (2.0 - dist);
+                    }
+
+                    if (audioIntensity > 0) {
+                        x += Math.sin(y * 10 + elapsedTime * 18) * audioIntensity * 0.3;
+                        z += Math.cos(y * 10 + elapsedTime * 18) * audioIntensity * 0.3;
+                        thickFilament.material.color.setHSL(0.6 + audioIntensity * 0.4, 0.9, 0.5);
+                    } else {
+                        thickFilament.material.color.setRGB(1, 1, 1);
+                    }
+
+                    positionAttribute.setXYZ(i, x, y, z);
+                }
+                positionAttribute.needsUpdate = true;
+                thickFilament.rotation.y = elapsedTime * 0.05;
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
 </html>
